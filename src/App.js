@@ -10,11 +10,13 @@ import { ThemeProvider } from '@emotion/react'
 
 import dayjs from 'dayjs'
 
-const AUTHORIZATION_KEY = 'CWA-A9C0FF36-FB6F-4202-9A68-184A7A22FC40'
+const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
+const KEY = process.env.REACT_APP_API_KEY
 const STATION_NAME = '臺北'
 const LOCATION_NAME = '臺北市'
-const API_OBSERVATION = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${AUTHORIZATION_KEY}&StationName=${STATION_NAME}`
-const API_FORECAST = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME}`
+
+const API_OBSERVATION = `${API_BASE_URL}O-A0003-001?Authorization=${KEY}&StationName=${STATION_NAME}`
+const API_FORECAST = `${API_BASE_URL}F-C0032-001?Authorization=${KEY}&locationName=${LOCATION_NAME}`
 
 
 const theme = {
@@ -133,10 +135,9 @@ function App() {
     description: '多雲時晴',
     windSpeed: 1.1,
     temperature: 23.7,
-    rainPossibility: 50,
+    rainPossibility: 60,
     observationTime: '2020-12-10 22:10:00',
   })
-
 
   const handleRefresh = () => {
     fetch(API_OBSERVATION)
