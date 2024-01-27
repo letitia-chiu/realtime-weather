@@ -10,6 +10,13 @@ import { ThemeProvider } from '@emotion/react'
 
 import dayjs from 'dayjs'
 
+const AUTHORIZATION_KEY = 'CWA-A9C0FF36-FB6F-4202-9A68-184A7A22FC40'
+const STATION_NAME = '臺北'
+const LOCATION_NAME = '臺北市'
+const API_OBSERVATION = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${AUTHORIZATION_KEY}&StationName=${STATION_NAME}`
+const API_FORECAST = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${AUTHORIZATION_KEY}&locationName=${LOCATION_NAME}`
+
+
 const theme = {
   light: {
     backgroundColor: '#ededed',
@@ -117,6 +124,7 @@ const Refresh = styled.div`
     cursor: pointer;
   }
 `
+
 function App() {
   const [currentTheme, setCurrentTheme] = useState('light')
 
@@ -125,9 +133,46 @@ function App() {
     description: '多雲時晴',
     windSpeed: 1.1,
     temperature: 23.7,
-    rainPossibility: 60,
+    rainPossibility: 50,
     observationTime: '2020-12-10 22:10:00',
   })
+
+
+  const handleRefresh = () => {
+    fetch(API_OBSERVATION)
+      .then(res => res.json())
+      .then(data => {
+        const obs = data.records.Station[0]
+
+        const obsData = {
+          description: obs.WeatherElement.Weather,
+          windSpeed: obs.WeatherElement.WindSpeed,
+          temperature: obs.WeatherElement.AirTemperature,
+          observationTime: obs.ObsTime.DateTime
+        }
+        
+        return obsData
+      })
+      .then(obsData => {
+        fetch(API_FORECAST)
+        .then(res => res.json())
+        .then(data => {
+          const fc = data.records.location[0]
+          
+          const fcData = {
+            locationName: fc.locationName,
+            rainPossibility: fc.weatherElement[1].time[0].parameter.parameterName,
+          }
+
+          const weatherData = {...obsData, ...fcData}
+          
+          setCurrentWeather({
+            ...currentWeather,
+            ...weatherData
+          })
+        })
+      })
+  }
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
@@ -147,7 +192,7 @@ function App() {
           <Rain>
             <RainIcon /> {currentWeather.rainPossibility}%
           </Rain>
-          <Refresh>
+          <Refresh onClick={handleRefresh}>
             最後觀測時間：
             {new Intl.DateTimeFormat('zh-TW', {
               hour: 'numeric',
