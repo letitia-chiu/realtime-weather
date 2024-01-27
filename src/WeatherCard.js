@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 
@@ -114,19 +115,21 @@ const Refresh = styled.div`
 
 export default function WeatherCard(props) {
 
-  const [currentWeather, setCurrentWeather] = useState({
-    locationName: '臺北市',
-    description: '多雲時晴',
-    windSpeed: 1.1,
-    temperature: 23.7,
-    rainPossibility: 60,
-    observationTime: '2020-12-10 22:10:00',
+  const [weatherElement, setWeatherElement] = useState({
+    observationTime: new Date(),
+    locationName: '',
+    temperature: 0,
+    windSpeed: 0,
+    description: '',
+    weatherCode: 0,
+    rainPossibility: 0,
+    comfortability: '',
     isLoading: true,
     loadFailed: false
   })
 
   const fetchCurrentWeather = () => {    
-    setCurrentWeather(prevState => ({
+    setWeatherElement(prevState => ({
       ...prevState,
       isLoading: true
     }))
@@ -141,24 +144,35 @@ export default function WeatherCard(props) {
     .then(([data1, data2]) => {
       const obs = data1.records.Station[0]
       const fc = data2.records.location[0]
+      const fcWeatherElements = fc.weatherElement.reduce(
+        (neededElements, item) => {
+          if (['Wx', 'PoP', 'CI'].includes(item.elementName)) {
+            neededElements[item.elementName] = item.time[0].parameter
+          }
+          return neededElements
+        }, {}
+      )
+      console.log(data2)
 
       const weatherData = {
-        locationName: fc.locationName,
-        description: obs.WeatherElement.Weather,
-        windSpeed: obs.WeatherElement.WindSpeed,
-        temperature: obs.WeatherElement.AirTemperature,
-        rainPossibility: fc.weatherElement[1].time[0].parameter.parameterName,
         observationTime: obs.ObsTime.DateTime,
+        locationName: fc.locationName,
+        temperature: obs.WeatherElement.AirTemperature,
+        windSpeed: obs.WeatherElement.WindSpeed,
+        description: fcWeatherElements.Wx.parameterName,
+        weatherCode: fcWeatherElements.Wx.parameterValue,        
+        rainPossibility: fcWeatherElements.PoP.parameterName,
+        comfortability: fcWeatherElements.CI.parameterName,
         isLoading: false,
         loadFailed: false
       }
 
-      setCurrentWeather(weatherData)
+      setWeatherElement(weatherData)
       console.log('fetch data successfully')
     })
     .catch(err => {
       console.error(err)
-      setCurrentWeather(prevState => ({
+      setWeatherElement(prevState => ({
         ...prevState,
         isLoading: false,
         loadFailed: true
@@ -173,18 +187,22 @@ export default function WeatherCard(props) {
   const {
     observationTime,
     locationName,
-    description,
-    windSpeed,
     temperature,
+    windSpeed,
+    description,
+    weatherCode,
     rainPossibility,
+    comfortability,
     isLoading,
     loadFailed
-  } = currentWeather;
+  } = weatherElement;
 
   return (
     <Card>
       <Location>{locationName}</Location>
-      <Description>{description}</Description>
+      <Description>
+        {description}　{comfortability}
+      </Description>
       <CurrentWeather>
         <Temperature>
           {Math.round(temperature)} <Celsius>°C</Celsius>
