@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg'
 import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg'
@@ -128,6 +128,7 @@ const Refresh = styled.div`
 `
 
 function App() {
+  console.log('invoke function component')
   const [currentTheme, setCurrentTheme] = useState('light')
 
   const [currentWeather, setCurrentWeather] = useState({
@@ -139,45 +140,42 @@ function App() {
     observationTime: '2020-12-10 22:10:00',
   })
 
-  const handleRefresh = () => {
-    fetch(API_OBSERVATION)
-      .then(res => res.json())
-      .then(data => {
-        const obs = data.records.Station[0]
+  const fetchCurrentWeather = () => {
+    Promise.all([
+      fetch(API_OBSERVATION),
+      fetch(API_FORECAST)
+    ])
+    .then(responses => {
+      return Promise.all(responses.map(res => res.json()))
+    })
+    .then(([data1, data2]) => {
+      const obs = data1.records.Station[0]
+      const fc = data2.records.location[0]
 
-        const obsData = {
-          description: obs.WeatherElement.Weather,
-          windSpeed: obs.WeatherElement.WindSpeed,
-          temperature: obs.WeatherElement.AirTemperature,
-          observationTime: obs.ObsTime.DateTime
-        }
-        
-        return obsData
-      })
-      .then(obsData => {
-        fetch(API_FORECAST)
-        .then(res => res.json())
-        .then(data => {
-          const fc = data.records.location[0]
-          
-          const fcData = {
-            locationName: fc.locationName,
-            rainPossibility: fc.weatherElement[1].time[0].parameter.parameterName,
-          }
+      const weatherData = {
+        locationName: fc.locationName,
+        description: obs.WeatherElement.Weather,
+        windSpeed: obs.WeatherElement.WindSpeed,
+        temperature: obs.WeatherElement.AirTemperature,
+        rainPossibility: fc.weatherElement[1].time[0].parameter.parameterName,
+        observationTime: obs.ObsTime.DateTime
+      }
 
-          const weatherData = {...obsData, ...fcData}
-          
-          setCurrentWeather({
-            ...currentWeather,
-            ...weatherData
-          })
-        })
+      setCurrentWeather({
+        ...currentWeather,
+        ...weatherData
       })
+    })
   }
+
+  useEffect(() => {
+    console.log('execute function in useEffect')
+  })
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
+        {console.log('render')}
         <WeatherCard>
           <Location>{currentWeather.locationName}</Location>
           <Description>{currentWeather.description}</Description>
@@ -193,7 +191,7 @@ function App() {
           <Rain>
             <RainIcon /> {currentWeather.rainPossibility}%
           </Rain>
-          <Refresh onClick={handleRefresh}>
+          <Refresh onClick={fetchCurrentWeather}>
             最後觀測時間：
             {new Intl.DateTimeFormat('zh-TW', {
               hour: 'numeric',
