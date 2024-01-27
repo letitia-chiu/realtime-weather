@@ -5,6 +5,8 @@ import { ReactComponent as AirFlowIcon } from './images/airFlow.svg'
 import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg'
 import { ReactComponent as RainIcon } from './images/rain.svg'
 import { ReactComponent as RefreshIcon } from './images/refresh.svg'
+import { ReactComponent as LoadingIcon } from './images/loading.svg'
+import { ReactComponent as WarningIcon } from './images/warning.svg'
 
 import styled from '@emotion/styled'
 
@@ -96,6 +98,17 @@ const Refresh = styled.div`
     width: 15px;
     height: 15px;
     cursor: pointer;
+    animation: rotate infinite 1.5s linear;
+    animation-duration: ${({ isLoading }) => isLoading ? '1.5s' : '0s'};
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg)
+    }
   }
 `
 
@@ -108,9 +121,16 @@ export default function WeatherCard(props) {
     temperature: 23.7,
     rainPossibility: 60,
     observationTime: '2020-12-10 22:10:00',
+    isLoading: true,
+    loadFailed: false
   })
 
   const fetchCurrentWeather = () => {    
+    setCurrentWeather(prevState => ({
+      ...prevState,
+      isLoading: true
+    }))
+    
     Promise.all([
       fetch(API_OBSERVATION),
       fetch(API_FORECAST)
@@ -128,14 +148,21 @@ export default function WeatherCard(props) {
         windSpeed: obs.WeatherElement.WindSpeed,
         temperature: obs.WeatherElement.AirTemperature,
         rainPossibility: fc.weatherElement[1].time[0].parameter.parameterName,
-        observationTime: obs.ObsTime.DateTime
+        observationTime: obs.ObsTime.DateTime,
+        isLoading: false,
+        loadFailed: false
       }
 
-      setCurrentWeather({
-        ...currentWeather,
-        ...weatherData
-      })
+      setCurrentWeather(weatherData)
       console.log('fetch data successfully')
+    })
+    .catch(err => {
+      console.error(err)
+      setCurrentWeather(prevState => ({
+        ...prevState,
+        isLoading: false,
+        loadFailed: true
+      }))
     })
   }
 
@@ -143,30 +170,43 @@ export default function WeatherCard(props) {
     fetchCurrentWeather()
   }, [])
 
+  const {
+    observationTime,
+    locationName,
+    description,
+    windSpeed,
+    temperature,
+    rainPossibility,
+    isLoading,
+    loadFailed
+  } = currentWeather;
+
   return (
     <Card>
-      <Location>{currentWeather.locationName}</Location>
-      <Description>{currentWeather.description}</Description>
+      <Location>{locationName}</Location>
+      <Description>{description}</Description>
       <CurrentWeather>
         <Temperature>
-          {Math.round(currentWeather.temperature)} <Celsius>°C</Celsius>
+          {Math.round(temperature)} <Celsius>°C</Celsius>
         </Temperature>
         <DayCloudy />
       </CurrentWeather>
       <AirFlow>
-        <AirFlowIcon /> {currentWeather.windSpeed} m/h
+        <AirFlowIcon /> {windSpeed} m/h
       </AirFlow>
       <Rain>
-        <RainIcon /> {currentWeather.rainPossibility}%
+        <RainIcon /> {rainPossibility}%
       </Rain>
-      <Refresh onClick={fetchCurrentWeather}>
+      <Refresh onClick={fetchCurrentWeather} isLoading={isLoading}>
+        {loadFailed && '更新失敗('}
         最後觀測時間：
         {new Intl.DateTimeFormat('zh-TW', {
           hour: 'numeric',
           minute: 'numeric',
-        }).format(new dayjs(currentWeather.observationTime))}
+        }).format(new dayjs(observationTime))}
+        {loadFailed && ')'}
         {' '}
-      <RefreshIcon />
+        {isLoading ? <LoadingIcon /> : loadFailed? <WarningIcon /> : <RefreshIcon />}
       </Refresh>
     </Card>
   )
