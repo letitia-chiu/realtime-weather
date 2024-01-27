@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 
 import { ReactComponent as AirFlowIcon } from './images/airFlow.svg'
@@ -170,7 +172,8 @@ function App() {
 
   useEffect(() => {
     console.log('execute function in useEffect')
-  })
+    fetchCurrentWeather()
+  }, [])
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
