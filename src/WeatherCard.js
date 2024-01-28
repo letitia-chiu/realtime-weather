@@ -14,7 +14,7 @@ import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 
 const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
-const KEY = process.env.REACT_APP_API_KEY
+const KEY = process.env.REACT_APP_API_KEY_2
 const STATION_NAME = '臺北'
 const LOCATION_NAME = '臺北市'
 
@@ -152,7 +152,6 @@ export default function WeatherCard(props) {
           return neededElements
         }, {}
       )
-      console.log(data2)
 
       const weatherData = {
         observationTime: obs.ObsTime.DateTime,
