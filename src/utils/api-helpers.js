@@ -44,6 +44,7 @@ const fetchWeatherForecast = () => {
 
       console.log('Fetch weather forecast successfully')
       return {
+        locationName: locationData.locationName,
         description: weatherElements.Wx.parameterName,
         weatherCode: weatherElements.Wx.parameterValue,
         rainPossibility: weatherElements.PoP.parameterName,

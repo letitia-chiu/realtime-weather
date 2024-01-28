@@ -13,7 +13,7 @@ import dayjs from 'dayjs'
 
 import WeatherIcon from './WeatherIcon'
 
-import { fetchCurrentWeather, fetchWeatherForecast, fetchSunTime } from '../utils/api-helpers'
+import { fetchCurrentWeather, fetchWeatherForecast } from '../utils/api-helpers'
 
 const Card = styled.div`
   position: relative;
@@ -104,7 +104,7 @@ const Refresh = styled.div`
   }
 `
 
-export default function WeatherCard({ date }) {
+export default function WeatherCard({ moment, getMoment, sunTime }) {
 
   const [weatherElement, setWeatherElement] = useState({
     observationTime: new Date(),
@@ -125,6 +125,8 @@ export default function WeatherCard({ date }) {
         ...prevState,
         isLoading: true
       }))
+
+      getMoment(sunTime)
 
       const [currentWeather, weatherForecast] = await Promise.all([
         fetchCurrentWeather(),
@@ -162,28 +164,6 @@ export default function WeatherCard({ date }) {
     isLoading,
     loadFailed
   } = weatherElement
-
-  const [moment, setMoment] = useState('day')
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const { sunRiseTime, sunSetTime } = await fetchSunTime(date)
-        const currentTime = dayjs().format('HH:mm')
-
-        console.log('SunRiseTime: ', sunRiseTime, 'SunSetTime: ', sunSetTime, 'CurrentTime: ', currentTime)
-
-        if (currentTime > sunRiseTime && currentTime < sunSetTime) {
-          setMoment('day')
-        } else {
-          setMoment('night')
-        }
-      } catch (err) {
-        console.err(err)
-      }
-    })(); 
-
-  }, [date])
-
 
   return (
     <Card>

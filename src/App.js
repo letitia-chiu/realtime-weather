@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useMemo } from 'react'
 
@@ -8,7 +9,8 @@ import WeatherCard from './components/WeatherCard'
 import ThemeSwitcher from './components/ThemeSwitcher'
 
 import dayjs from "dayjs"
-const date = dayjs().format('YYYY-MM-DD')
+
+import { fetchSunTime } from './utils/api-helpers'
 
 const theme = {
   light: {
@@ -40,11 +42,50 @@ const Container = styled.div`
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState('light')
+  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'))
+  const [moment, setMoment] = useState('day')
+  const [sunTime, setSunTime] = useState('')
+
+  const getMoment = (sunTimeData) => {
+    if (!sunTimeData) {
+      return
+    }
+
+    const currentTime = dayjs().format('HH:mm')
+    const { sunRiseTime, sunSetTime } = sunTimeData
+
+    console.info('Moment set, current time', currentTime)
+    if (currentTime > sunRiseTime && currentTime < sunSetTime) {
+      setMoment('day')
+      setCurrentTheme('light')
+    } else {
+      setMoment('night')
+      setCurrentTheme('dark')
+    }
+  }
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const today = dayjs().format('YYYY-MM-DD')
+        await setDate(today)
+        console.info('Date set:', today)
+
+        const sunTimeData = await fetchSunTime(date)
+        await setSunTime(sunTimeData)
+        console.info('Sun time set')
+
+        getMoment(sunTimeData)        
+      } catch (err) {
+        console.err(err)
+      }
+    })(); 
+  }, [date])
   
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
-        <WeatherCard date={date}/>
+        <WeatherCard moment={moment} getMoment={getMoment} sunTime={sunTime} />
         <ThemeSwitcher
           theme={currentTheme}
           setTheme={setCurrentTheme}

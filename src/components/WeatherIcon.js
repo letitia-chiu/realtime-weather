@@ -56,6 +56,8 @@ const weatherIcons = {
 }
 
 const weatherCode2Type = (weatherCode) => {
+  if (!weatherCode) return
+  
   const [weatherType] = Object.entries(weatherTypes)
     .find(([weatherType, weatherCodes]) => weatherCodes.includes(Number(weatherCode))) || []
   
