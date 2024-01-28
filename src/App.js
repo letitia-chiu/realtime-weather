@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import useWeatherAPI from './hooks/useWeatherAPI'
 
 import styled from '@emotion/styled'
@@ -55,8 +55,9 @@ function App() {
     date
   })
   
-  useEffect(async () => {
-    try {
+  useEffect(() => {
+    ;(async () => {
+      try {
       const { sunRiseTime, sunSetTime } = await fetchSunTime({ locationName, date })
       const currentMoment = getMoment(sunRiseTime, sunSetTime)
       setMoment(currentMoment)
@@ -64,6 +65,7 @@ function App() {
     } catch (err) {
       console.error(err)
     }
+    })();
   }, [date, locationName])
   
   return (

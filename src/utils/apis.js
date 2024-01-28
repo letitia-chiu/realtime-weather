@@ -1,7 +1,5 @@
-
 const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
 const KEY = process.env.REACT_APP_API_KEY_2
-
 
 const API_OBSERVATION = `${API_BASE_URL}O-A0003-001?Authorization=${KEY}&StationName=`
 const API_FORECAST = `${API_BASE_URL}F-C0032-001?Authorization=${KEY}&locationName=`
