@@ -113,7 +113,55 @@ const Refresh = styled.div`
   }
 `
 
-export default function WeatherCard(props) {
+const fetchCurrentWeather = () => {    
+    
+  return fetch(API_OBSERVATION)
+    .then(res => res.json())
+    .then(result => {
+      const stationData = result.records.Station[0]
+     
+      console.log('Fetch current weather successfully')
+      return {
+        observationTime: stationData.ObsTime.DateTime,
+        temperature: stationData.WeatherElement.AirTemperature,
+        windSpeed: stationData.WeatherElement.WindSpeed
+      }
+    })
+    .catch(err => {
+      console.warn('Failed to fetch current weather')
+      throw err
+    })
+}
+
+const fetchWeatherForecast = () => {
+  return fetch(API_FORECAST)
+    .then(res => res.json())
+    .then(result => {
+      const locationData = result.records.location[0]
+      const weatherElements = locationData.weatherElement.reduce(
+        (neededElements, item) => {
+          if (['Wx', 'PoP', 'CI'].includes(item.elementName)) {
+            neededElements[item.elementName] = item.time[0].parameter
+          }
+          return neededElements
+        }, {}
+      )
+
+      console.log('Fetch weather forecast successfully')
+      return {
+        description: weatherElements.Wx.parameterName,
+        weatherCode: weatherElements.Wx.parameterValue,
+        rainPossibility: weatherElements.PoP.parameterName,
+        comfortability: weatherElements.CI.parameterName
+      }
+    })
+    .catch(err => {
+      console.warn('Failed to fetch weather forecast')
+      throw err
+    })
+}
+
+export default function WeatherCard() {
 
   const [weatherElement, setWeatherElement] = useState({
     observationTime: new Date(),
@@ -128,59 +176,35 @@ export default function WeatherCard(props) {
     loadFailed: false
   })
 
-  const fetchCurrentWeather = () => {    
-    setWeatherElement(prevState => ({
-      ...prevState,
-      isLoading: true
-    }))
-    
-    Promise.all([
-      fetch(API_OBSERVATION),
-      fetch(API_FORECAST)
-    ])
-    .then(responses => {
-      return Promise.all(responses.map(res => res.json()))
-    })
-    .then(([data1, data2]) => {
-      const obs = data1.records.Station[0]
-      const fc = data2.records.location[0]
-      const fcWeatherElements = fc.weatherElement.reduce(
-        (neededElements, item) => {
-          if (['Wx', 'PoP', 'CI'].includes(item.elementName)) {
-            neededElements[item.elementName] = item.time[0].parameter
-          }
-          return neededElements
-        }, {}
-      )
-
-      const weatherData = {
-        observationTime: obs.ObsTime.DateTime,
-        locationName: fc.locationName,
-        temperature: obs.WeatherElement.AirTemperature,
-        windSpeed: obs.WeatherElement.WindSpeed,
-        description: fcWeatherElements.Wx.parameterName,
-        weatherCode: fcWeatherElements.Wx.parameterValue,        
-        rainPossibility: fcWeatherElements.PoP.parameterName,
-        comfortability: fcWeatherElements.CI.parameterName,
-        isLoading: false,
-        loadFailed: false
-      }
-
-      setWeatherElement(weatherData)
-      console.log('fetch data successfully')
-    })
-    .catch(err => {
-      console.error(err)
+  const fetchData = async () => {
+    try {
       setWeatherElement(prevState => ({
         ...prevState,
-        isLoading: false,
-        loadFailed: true
+        isLoading: true
       }))
-    })
+
+      const [currentWeather, weatherForecast] = await Promise.all([
+        fetchCurrentWeather(),
+        fetchWeatherForecast()
+      ])
+
+      setWeatherElement({
+        ...currentWeather,
+        ...weatherForecast,
+        isLoading: false
+      })
+    } catch (err) {
+      setWeatherElement(prevState => ({
+        ...prevState,
+        loadFailed: true,
+        isLoading: false
+      }))
+      console.error(err)
+    }
   }
 
   useEffect(() => {
-    fetchCurrentWeather()
+    fetchData()
   }, [])
 
   const {
@@ -214,7 +238,7 @@ export default function WeatherCard(props) {
       <Rain>
         <RainIcon /> {rainPossibility}%
       </Rain>
-      <Refresh onClick={fetchCurrentWeather} isLoading={isLoading}>
+      <Refresh onClick={fetchData} isLoading={isLoading}>
         {loadFailed && '更新失敗('}
         最後觀測時間：
         {new Intl.DateTimeFormat('zh-TW', {
