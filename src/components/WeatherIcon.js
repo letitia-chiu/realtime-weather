@@ -63,7 +63,7 @@ const weatherCode2Type = (weatherCode) => {
   return weatherType
 }
 
-export default function WeatherIcon({ weatherCode, moment = 'night'}) {
+export default function WeatherIcon({ weatherCode, moment }) {
 
   const weatherType = useMemo(() => weatherCode2Type(weatherCode), [weatherCode])
   const weatherIcon = weatherIcons[moment][weatherType]

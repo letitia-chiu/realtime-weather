@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import { ReactComponent as AirFlowIcon } from '../images/airFlow.svg'
 import { ReactComponent as RainIcon } from '../images/rain.svg'
@@ -13,13 +13,7 @@ import dayjs from 'dayjs'
 
 import WeatherIcon from './WeatherIcon'
 
-const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
-const KEY = process.env.REACT_APP_API_KEY_2
-const STATION_NAME = '臺北'
-const LOCATION_NAME = '臺北市'
-
-const API_OBSERVATION = `${API_BASE_URL}O-A0003-001?Authorization=${KEY}&StationName=${STATION_NAME}`
-const API_FORECAST = `${API_BASE_URL}F-C0032-001?Authorization=${KEY}&locationName=${LOCATION_NAME}`
+import { fetchCurrentWeather, fetchWeatherForecast, fetchSunTime } from '../utils/api-helpers'
 
 const Card = styled.div`
   position: relative;
@@ -110,55 +104,7 @@ const Refresh = styled.div`
   }
 `
 
-const fetchCurrentWeather = () => {    
-    
-  return fetch(API_OBSERVATION)
-    .then(res => res.json())
-    .then(result => {
-      const stationData = result.records.Station[0]
-     
-      console.log('Fetch current weather successfully')
-      return {
-        observationTime: stationData.ObsTime.DateTime,
-        temperature: stationData.WeatherElement.AirTemperature,
-        windSpeed: stationData.WeatherElement.WindSpeed
-      }
-    })
-    .catch(err => {
-      console.warn('Failed to fetch current weather')
-      throw err
-    })
-}
-
-const fetchWeatherForecast = () => {
-  return fetch(API_FORECAST)
-    .then(res => res.json())
-    .then(result => {
-      const locationData = result.records.location[0]
-      const weatherElements = locationData.weatherElement.reduce(
-        (neededElements, item) => {
-          if (['Wx', 'PoP', 'CI'].includes(item.elementName)) {
-            neededElements[item.elementName] = item.time[0].parameter
-          }
-          return neededElements
-        }, {}
-      )
-
-      console.log('Fetch weather forecast successfully')
-      return {
-        description: weatherElements.Wx.parameterName,
-        weatherCode: weatherElements.Wx.parameterValue,
-        rainPossibility: weatherElements.PoP.parameterName,
-        comfortability: weatherElements.CI.parameterName
-      }
-    })
-    .catch(err => {
-      console.warn('Failed to fetch weather forecast')
-      throw err
-    })
-}
-
-export default function WeatherCard() {
+export default function WeatherCard({ date }) {
 
   const [weatherElement, setWeatherElement] = useState({
     observationTime: new Date(),
@@ -215,7 +161,29 @@ export default function WeatherCard() {
     comfortability,
     isLoading,
     loadFailed
-  } = weatherElement;
+  } = weatherElement
+
+  const [moment, setMoment] = useState('day')
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const { sunRiseTime, sunSetTime } = await fetchSunTime(date)
+        const currentTime = dayjs().format('HH:mm')
+
+        console.log('SunRiseTime: ', sunRiseTime, 'SunSetTime: ', sunSetTime, 'CurrentTime: ', currentTime)
+
+        if (currentTime > sunRiseTime && currentTime < sunSetTime) {
+          setMoment('day')
+        } else {
+          setMoment('night')
+        }
+      } catch (err) {
+        console.err(err)
+      }
+    })(); 
+
+  }, [date])
+
 
   return (
     <Card>
@@ -227,7 +195,7 @@ export default function WeatherCard() {
         <Temperature>
           {Math.round(temperature)} <Celsius>°C</Celsius>
         </Temperature>
-        <WeatherIcon weatherCode={weatherCode} />
+        <WeatherIcon weatherCode={weatherCode} moment={moment}/>
       </CurrentWeather>
       <AirFlow>
         <AirFlowIcon /> {windSpeed} m/h

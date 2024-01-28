@@ -1,11 +1,14 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import styled from '@emotion/styled'
 import { ThemeProvider } from '@emotion/react'
 
 import WeatherCard from './components/WeatherCard'
 import ThemeSwitcher from './components/ThemeSwitcher'
+
+import dayjs from "dayjs"
+const date = dayjs().format('YYYY-MM-DD')
 
 const theme = {
   light: {
@@ -37,11 +40,11 @@ const Container = styled.div`
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState('light')
-
+  
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
-        <WeatherCard />
+        <WeatherCard date={date}/>
         <ThemeSwitcher
           theme={currentTheme}
           setTheme={setCurrentTheme}
