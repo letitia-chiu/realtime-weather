@@ -2,16 +2,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 
-import { ReactComponent as AirFlowIcon } from './images/airFlow.svg'
-import { ReactComponent as DayCloudyIcon } from './images/day-cloudy.svg'
-import { ReactComponent as RainIcon } from './images/rain.svg'
-import { ReactComponent as RefreshIcon } from './images/refresh.svg'
-import { ReactComponent as LoadingIcon } from './images/loading.svg'
-import { ReactComponent as WarningIcon } from './images/warning.svg'
+import { ReactComponent as AirFlowIcon } from '../images/airFlow.svg'
+import { ReactComponent as RainIcon } from '../images/rain.svg'
+import { ReactComponent as RefreshIcon } from '../images/refresh.svg'
+import { ReactComponent as LoadingIcon } from '../images/loading.svg'
+import { ReactComponent as WarningIcon } from '../images/warning.svg'
 
 import styled from '@emotion/styled'
-
 import dayjs from 'dayjs'
+
+import WeatherIcon from './WeatherIcon'
 
 const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
 const KEY = process.env.REACT_APP_API_KEY_2
@@ -81,9 +81,6 @@ const Rain = styled.div`
     height: auto;
     margin-right: 30px;
   }
-`
-const DayCloudy = styled(DayCloudyIcon)`
-  flex-basis: 30%;
 `
 const Refresh = styled.div`
   position: absolute;
@@ -230,7 +227,7 @@ export default function WeatherCard() {
         <Temperature>
           {Math.round(temperature)} <Celsius>°C</Celsius>
         </Temperature>
-        <DayCloudy />
+        <WeatherIcon weatherCode={weatherCode} />
       </CurrentWeather>
       <AirFlow>
         <AirFlowIcon /> {windSpeed} m/h

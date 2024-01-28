@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 
-import { ReactComponent as DarkModeOnIcon } from './images/darkmode-on.svg'
-import { ReactComponent as DarkModeOffIcon } from './images/darkmode-off.svg'
+import { ReactComponent as DarkModeOnIcon } from '../images/darkmode-on.svg'
+import { ReactComponent as DarkModeOffIcon } from '../images/darkmode-off.svg'
 
 const Switcher = styled.div`
   position: absolute;

@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
 import { ThemeProvider } from '@emotion/react'
 
-import WeatherCard from './WeatherCard'
-import ThemeSwitcher from './ThemeSwitcher'
+import WeatherCard from './components/WeatherCard'
+import ThemeSwitcher from './components/ThemeSwitcher'
 
 const theme = {
   light: {
