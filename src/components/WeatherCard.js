@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useMemo } from 'react'
-
 import { ReactComponent as AirFlowIcon } from '../images/airFlow.svg'
 import { ReactComponent as RainIcon } from '../images/rain.svg'
 import { ReactComponent as RefreshIcon } from '../images/refresh.svg'
@@ -12,8 +8,6 @@ import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 
 import WeatherIcon from './WeatherIcon'
-
-import { fetchCurrentWeather, fetchWeatherForecast } from '../utils/api-helpers'
 
 const Card = styled.div`
   position: relative;
@@ -104,53 +98,7 @@ const Refresh = styled.div`
   }
 `
 
-export default function WeatherCard({ moment, getMoment, sunTime }) {
-
-  const [weatherElement, setWeatherElement] = useState({
-    observationTime: new Date(),
-    locationName: '',
-    temperature: 0,
-    windSpeed: 0,
-    description: '',
-    weatherCode: 0,
-    rainPossibility: 0,
-    comfortability: '',
-    isLoading: true,
-    loadFailed: false
-  })
-
-  const fetchData = async () => {
-    try {
-      setWeatherElement(prevState => ({
-        ...prevState,
-        isLoading: true
-      }))
-
-      getMoment(sunTime)
-
-      const [currentWeather, weatherForecast] = await Promise.all([
-        fetchCurrentWeather(),
-        fetchWeatherForecast()
-      ])
-
-      setWeatherElement({
-        ...currentWeather,
-        ...weatherForecast,
-        isLoading: false
-      })
-    } catch (err) {
-      setWeatherElement(prevState => ({
-        ...prevState,
-        loadFailed: true,
-        isLoading: false
-      }))
-      console.error(err)
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
+export default function WeatherCard({ weatherElement, fetchData, moment}) {
 
   const {
     observationTime,

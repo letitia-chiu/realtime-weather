@@ -1,16 +1,15 @@
 
 const API_BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/'
 const KEY = process.env.REACT_APP_API_KEY_2
-const STATION_NAME = '臺北'
-const LOCATION_NAME = '臺北市'
 
-const API_OBSERVATION = `${API_BASE_URL}O-A0003-001?Authorization=${KEY}&StationName=${STATION_NAME}`
-const API_FORECAST = `${API_BASE_URL}F-C0032-001?Authorization=${KEY}&locationName=${LOCATION_NAME}`
-const API_SUN = `${API_BASE_URL}A-B0062-001?Authorization=${KEY}&CountyName=${LOCATION_NAME}`
 
-const fetchCurrentWeather = () => {    
+const API_OBSERVATION = `${API_BASE_URL}O-A0003-001?Authorization=${KEY}&StationName=`
+const API_FORECAST = `${API_BASE_URL}F-C0032-001?Authorization=${KEY}&locationName=`
+const API_SUN = `${API_BASE_URL}A-B0062-001?Authorization=${KEY}&CountyName=`
+
+const fetchCurrentWeather = ({ stationName }) => {    
     
-  return fetch(API_OBSERVATION)
+  return fetch(API_OBSERVATION + stationName)
     .then(res => res.json())
     .then(result => {
       const stationData = result.records.Station[0]
@@ -28,8 +27,8 @@ const fetchCurrentWeather = () => {
     })
 }
 
-const fetchWeatherForecast = () => {
-  return fetch(API_FORECAST)
+const fetchWeatherForecast = ({ locationName }) => {
+  return fetch(API_FORECAST + locationName)
     .then(res => res.json())
     .then(result => {
       const locationData = result.records.location[0]
@@ -57,10 +56,10 @@ const fetchWeatherForecast = () => {
     })
 }
 
-const fetchSunTime = date => {
+const fetchSunTime = ({ locationName, date }) => {
   const dateParam = date ? `&Date=${date}` : ''
 
-  return fetch(API_SUN + dateParam)
+  return fetch(API_SUN + locationName + dateParam)
     .then(res => res.json())
     .then(result => {
       const sunData = result.records.locations.location[0].time[0]

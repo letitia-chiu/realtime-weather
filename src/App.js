@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import useWeatherAPI from './hooks/useWeatherAPI'
 
 import styled from '@emotion/styled'
 import { ThemeProvider } from '@emotion/react'
@@ -10,7 +11,8 @@ import ThemeSwitcher from './components/ThemeSwitcher'
 
 import dayjs from "dayjs"
 
-import { fetchSunTime } from './utils/api-helpers'
+import { getMoment } from './utils/helpers'
+import { fetchSunTime } from './utils/apis'
 
 const theme = {
   light: {
@@ -41,51 +43,33 @@ const Container = styled.div`
 `
 
 function App() {
+  const date = dayjs().format('YYYY-MM-DD')
+  const locationName = '臺北市'
+  const stationName = '臺北'
+
   const [currentTheme, setCurrentTheme] = useState('light')
-  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'))
   const [moment, setMoment] = useState('day')
-  const [sunTime, setSunTime] = useState('')
-
-  const getMoment = (sunTimeData) => {
-    if (!sunTimeData) {
-      return
+  const [weatherElement, fetchData] = useWeatherAPI({
+    stationName,
+    locationName,
+    date
+  })
+  
+  useEffect(async () => {
+    try {
+      const { sunRiseTime, sunSetTime } = await fetchSunTime({ locationName, date })
+      const currentMoment = getMoment(sunRiseTime, sunSetTime)
+      setMoment(currentMoment)
+      currentMoment === 'day' ? setCurrentTheme('light') : setCurrentTheme('dark')
+    } catch (err) {
+      console.error(err)
     }
-
-    const currentTime = dayjs().format('HH:mm')
-    const { sunRiseTime, sunSetTime } = sunTimeData
-
-    console.info('Moment set, current time', currentTime)
-    if (currentTime > sunRiseTime && currentTime < sunSetTime) {
-      setMoment('day')
-      setCurrentTheme('light')
-    } else {
-      setMoment('night')
-      setCurrentTheme('dark')
-    }
-  }
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const today = dayjs().format('YYYY-MM-DD')
-        await setDate(today)
-        console.info('Date set:', today)
-
-        const sunTimeData = await fetchSunTime(date)
-        await setSunTime(sunTimeData)
-        console.info('Sun time set')
-
-        getMoment(sunTimeData)        
-      } catch (err) {
-        console.err(err)
-      }
-    })(); 
-  }, [date])
+  }, [date, locationName])
   
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
-        <WeatherCard moment={moment} getMoment={getMoment} sunTime={sunTime} />
+        <WeatherCard weatherElement={weatherElement} fetchData={fetchData} moment={moment} />
         <ThemeSwitcher
           theme={currentTheme}
           setTheme={setCurrentTheme}
