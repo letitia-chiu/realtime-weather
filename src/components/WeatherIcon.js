@@ -61,7 +61,6 @@ const weatherCode2Type = (weatherCode) => {
   const [weatherType] = Object.entries(weatherTypes)
     .find(([weatherType, weatherCodes]) => weatherCodes.includes(Number(weatherCode))) || []
   
-  console.log('Code to Type has been executed')
   return weatherType
 }
 

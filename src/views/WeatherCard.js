@@ -3,13 +3,14 @@ import { ReactComponent as RainIcon } from '../images/rain.svg'
 import { ReactComponent as RefreshIcon } from '../images/refresh.svg'
 import { ReactComponent as LoadingIcon } from '../images/loading.svg'
 import { ReactComponent as WarningIcon } from '../images/warning.svg'
+import { ReactComponent as CogIcon } from '../images/cog.svg'
 
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 
-import WeatherIcon from './WeatherIcon'
+import WeatherIcon from '../components/WeatherIcon'
 
-const Card = styled.div`
+const WeatherCardWrapper = styled.div`
   position: relative;
   padding: 30px 15px;
   min-width: 360px;
@@ -97,8 +98,16 @@ const Refresh = styled.div`
     }
   }
 `
+const Cog = styled(CogIcon)`
+  position: absolute;
+  top: 30px;
+  right: 15px;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+`
 
-export default function WeatherCard({ weatherElement, fetchData, moment}) {
+export default function WeatherCard({ weatherElement, fetchData, moment, handleCurrentPageChange}) {
 
   const {
     observationTime,
@@ -114,7 +123,8 @@ export default function WeatherCard({ weatherElement, fetchData, moment}) {
   } = weatherElement
 
   return (
-    <Card>
+    <WeatherCardWrapper>
+      <Cog onClick={() => handleCurrentPageChange('WeatherSetting')} />
       <Location>{locationName}</Location>
       <Description>
         {description}　{comfortability}
@@ -142,6 +152,6 @@ export default function WeatherCard({ weatherElement, fetchData, moment}) {
         {' '}
         {isLoading ? <LoadingIcon /> : loadFailed? <WarningIcon /> : <RefreshIcon />}
       </Refresh>
-    </Card>
+    </WeatherCardWrapper>
   )
 }

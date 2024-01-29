@@ -6,12 +6,13 @@ import useWeatherAPI from './hooks/useWeatherAPI'
 import styled from '@emotion/styled'
 import { ThemeProvider } from '@emotion/react'
 
-import WeatherCard from './components/WeatherCard'
+import WeatherCard from './views/WeatherCard'
+import WeatherSetting from './views/WeatherSetting'
 import ThemeSwitcher from './components/ThemeSwitcher'
 
 import dayjs from "dayjs"
 
-import { getMoment } from './utils/helpers'
+import { getMoment, findLocation } from './utils/helpers'
 import { fetchSunTime } from './utils/apis'
 
 const theme = {
@@ -22,6 +23,7 @@ const theme = {
     titleColor: '#212121',
     temperatureColor: '#757575',
     textColor: '#828282',
+    buttonBorder: '1px solid #828282',
   },
   dark: {
     backgroundColor: '#1F2022',
@@ -31,6 +33,7 @@ const theme = {
     titleColor: '#f9f9fa',
     temperatureColor: '#dddddd',
     textColor: '#cccccc',
+    buttonBorder: '1px solid #cccccc',
   },
 };
 
@@ -44,16 +47,23 @@ const Container = styled.div`
 
 function App() {
   const date = dayjs().format('YYYY-MM-DD')
-  const locationName = '臺北市'
-  const stationName = '臺北'
+  const { locationName, stationName } = findLocation('臺北市')
 
+  const [currentPage, setCurrentPage] = useState('WeatherCard')
   const [currentTheme, setCurrentTheme] = useState('light')
-  const [moment, setMoment] = useState('day')
+  const [moment, setMoment] = useState('day')  
   const [weatherElement, fetchData] = useWeatherAPI({
     stationName,
     locationName,
     date
   })
+
+  const handleThemeSwitch = (currentTheme) => {
+    setCurrentTheme(currentTheme)
+  }
+  const handleCurrentPageChange = (currentPage) => {
+    setCurrentPage(currentPage)
+  }
   
   useEffect(() => {
     ;(async () => {
@@ -71,11 +81,22 @@ function App() {
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <Container>
-        <WeatherCard weatherElement={weatherElement} fetchData={fetchData} moment={moment} />
-        <ThemeSwitcher
-          theme={currentTheme}
-          setTheme={setCurrentTheme}
-        />
+        <ThemeSwitcher theme={currentTheme} switchTheme={handleThemeSwitch} />
+        {currentPage === 'WeatherCard' && (
+          <WeatherCard 
+            weatherElement={weatherElement}
+            fetchData={fetchData}
+            moment={moment}
+            handleCurrentPageChange={handleCurrentPageChange}
+          />
+        )}
+        {currentPage === 'WeatherSetting' && (
+          <WeatherSetting 
+            cityName={locationName}
+            handleCurrentPageChange={handleCurrentPageChange} 
+          />
+        )}
+        
       </Container>
     </ThemeProvider>
   )

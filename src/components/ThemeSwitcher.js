@@ -15,10 +15,10 @@ const Switcher = styled.div`
   }
 ` 
 
-export default function ThemeSwitcher({ theme, setTheme }) {
+export default function ThemeSwitcher({ theme, switchTheme }) {
 
   const handleClick = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
+    switchTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   return (
