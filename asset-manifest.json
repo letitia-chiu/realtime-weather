@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/realtime-weather/static/css/main.24726b41.css",
-    "main.js": "/realtime-weather/static/js/main.deaae825.js",
+    "main.js": "/realtime-weather/static/js/main.43bee4fd.js",
     "static/js/787.1de6118b.chunk.js": "/realtime-weather/static/js/787.1de6118b.chunk.js",
     "service-worker.js": "/realtime-weather/service-worker.js",
     "static/media/day-snowing.svg": "/realtime-weather/static/media/day-snowing.ba1cbc7669611ee425e874e171d02e70.svg",
@@ -28,11 +28,11 @@
     "static/media/warning.svg": "/realtime-weather/static/media/warning.5a536865942d2330e79745519f6b953a.svg",
     "index.html": "/realtime-weather/index.html",
     "main.24726b41.css.map": "/realtime-weather/static/css/main.24726b41.css.map",
-    "main.deaae825.js.map": "/realtime-weather/static/js/main.deaae825.js.map",
+    "main.43bee4fd.js.map": "/realtime-weather/static/js/main.43bee4fd.js.map",
     "787.1de6118b.chunk.js.map": "/realtime-weather/static/js/787.1de6118b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.24726b41.css",
-    "static/js/main.deaae825.js"
+    "static/js/main.43bee4fd.js"
   ]
 }
