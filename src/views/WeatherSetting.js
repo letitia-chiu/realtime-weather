@@ -73,6 +73,7 @@ export default function WeatherSetting({
   const handleSave = () => {
     handleLocationChange(selected)
     localStorage.setItem('cityName', selected)
+    handleCurrentPageChange('WeatherCard')
   }
 
   return (
