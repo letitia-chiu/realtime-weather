@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import useWeatherAPI from './hooks/useWeatherAPI'
 
 import styled from '@emotion/styled'
@@ -47,22 +47,28 @@ const Container = styled.div`
 
 function App() {
   const date = dayjs().format('YYYY-MM-DD')
-  const { locationName, stationName } = findLocation('臺北市')
-
+  
   const [currentPage, setCurrentPage] = useState('WeatherCard')
   const [currentTheme, setCurrentTheme] = useState('light')
-  const [moment, setMoment] = useState('day')  
+  const [moment, setMoment] = useState('day')
+  const [currentCity, setCurrentCity] = useState(() => localStorage.getItem('cityName') || '臺北市')
+
+  const { locationName, stationName } = useMemo(() => findLocation(currentCity), [currentCity])
+
   const [weatherElement, fetchData] = useWeatherAPI({
     stationName,
     locationName,
     date
-  })
+  })  
 
   const handleThemeSwitch = (currentTheme) => {
     setCurrentTheme(currentTheme)
   }
   const handleCurrentPageChange = (currentPage) => {
     setCurrentPage(currentPage)
+  }
+  const handleLocationChange = (currentLocation) => {
+    setCurrentCity(currentLocation)
   }
   
   useEffect(() => {
@@ -92,8 +98,9 @@ function App() {
         )}
         {currentPage === 'WeatherSetting' && (
           <WeatherSetting 
-            cityName={locationName}
+            currentCity={currentCity}
             handleCurrentPageChange={handleCurrentPageChange} 
+            handleLocationChange={handleLocationChange}
           />
         )}
         

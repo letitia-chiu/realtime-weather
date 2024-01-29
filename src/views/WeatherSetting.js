@@ -1,3 +1,4 @@
+import { useState } from "react"
 import styled from "@emotion/styled"
 
 import { availableLocations } from "../utils/helpers"
@@ -57,19 +58,36 @@ const ButtonGroup = styled.div`
   }
 `
 
-export default function WeatherSetting({ handleCurrentPageChange }) {
+export default function WeatherSetting({
+  currentCity,
+  handleCurrentPageChange,
+  handleLocationChange
+}) {
+
+  const [selected, setSelected] = useState(currentCity)
+
+  const handleChange = (e) => {
+    setSelected(e.target.value)
+  }
+
+  const handleSave = () => {
+    console.log(selected)
+    handleLocationChange(selected)
+    localStorage.setItem('cityName', selected)
+  }
+
   return (
     <WeatherSettingWrapper>
       <Title>設定</Title>
       <StyledLabel htmlFor="location">地區</StyledLabel>
-      <StyledSelect id="location" name="location">
+      <StyledSelect id="location" name="location" onChange={handleChange} defaultValue={currentCity}>
         {availableLocations.map(({ locationName }) => (
           <option value={locationName} key={locationName}>{locationName}</option>
         ))}
       </StyledSelect>
       <ButtonGroup>
         <button onClick={() => handleCurrentPageChange('WeatherCard')}>返回</button>
-        <button>儲存</button>
+        <button onClick={handleSave}>儲存</button>
       </ButtonGroup>
     </WeatherSettingWrapper>
   )
