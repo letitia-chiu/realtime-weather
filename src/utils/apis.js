@@ -12,7 +12,6 @@ const fetchCurrentWeather = ({ stationName }) => {
     .then(result => {
       const stationData = result.records.Station[0]
      
-      console.log('Fetch current weather successfully')
       return {
         observationTime: stationData.ObsTime.DateTime,
         temperature: stationData.WeatherElement.AirTemperature,
@@ -39,7 +38,6 @@ const fetchWeatherForecast = ({ locationName }) => {
         }, {}
       )
 
-      console.log('Fetch weather forecast successfully')
       return {
         locationName: locationData.locationName,
         description: weatherElements.Wx.parameterName,
@@ -62,7 +60,6 @@ const fetchSunTime = ({ locationName, date }) => {
     .then(result => {
       const sunData = result.records.locations.location[0].time[0]
 
-      console.log('Fetch sun time successfully')
       return {
         sunRiseTime: sunData.SunRiseTime,
         sunSetTime: sunData.SunSetTime
