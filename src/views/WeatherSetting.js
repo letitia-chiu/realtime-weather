@@ -5,11 +5,13 @@ import { availableLocations } from "../utils/helpers"
 
 const WeatherSettingWrapper = styled.div`
   position: relative;
-  min-width: 360px;
+  width: 360px;
   padding: 30px 15px;
   box-shadow: ${({ theme }) => theme.boxShadow};
   background-color: ${({ theme }) => theme.foregroundColor};
   border-radius: 7px;
+  display: flex;
+  flex-direction: column;
 `
 const Title = styled.div`
   font-size: 28px;
@@ -41,8 +43,7 @@ const ButtonGroup = styled.div`
   align-items: center;
 
   > button {
-    width: 20%;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 7px;
     border: ${({ theme }) => theme.buttonBorder};
     background-color: ${({ theme }) => theme.foregroundColor};

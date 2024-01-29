@@ -13,10 +13,12 @@ import WeatherIcon from '../components/WeatherIcon'
 const WeatherCardWrapper = styled.div`
   position: relative;
   padding: 30px 15px;
-  min-width: 360px;
+  width: 360px;
   box-shadow: ${({ theme }) => theme.boxShadow};
   background-color: ${({ theme }) => theme.foregroundColor};
   border-radius: 7px;
+  display: flex;
+  flex-direction: column;
 `
 const Location = styled.div`
   font-size: 28px;
@@ -30,9 +32,15 @@ const Description = styled.div`
 `
 const CurrentWeather = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column-reverse;
+  justify-content: center;
   align-items: center;
   margin-bottom: 30px;
+
+  @media screen and (min-width: 320px) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 `
 const Temperature = styled.div`
   color: ${({ theme }) => theme.temperatureColor};
@@ -64,6 +72,7 @@ const Rain = styled.div`
   font-size: 16x;
   font-weight: 300;
   color: ${({ theme }) => theme.textColor};
+  margin-bottom: 20px;
 
   svg {
     width: 25px;
